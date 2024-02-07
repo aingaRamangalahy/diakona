@@ -1,43 +1,59 @@
 import { Request, Response } from "express";
 import UserModel from "../models/userModel";
+import xlsx from "node-xlsx";
+import { cwd } from "process";
+import path from "path";
 
-interface ExtRequext extends Request {
-  file?: Express.Multer.File
+interface ExtRequest extends Request {
+  file?: Express.Multer.File;
 }
 
-export const importUsers = async (req: ExtRequext, res: Response) => {
-  console.log("the file", req.file)
-  const { filePath } = req.body;
+export const importUsers = async (req: ExtRequest, res: Response) => {
+  const { file } = req;
 
-  if (!filePath) {
+  if (!file) {
     return res.status(400).json({ error: "Please provide a file path." });
   }
-
+  
+  if (!file.originalname.endsWith(".xlsx")) {
+    
+    return res.status(401).json({ error: "Please provide an xlsx file." });
+  }
   try {
-    // Read Excel file and convert to JSON using Mongoose model
-    // Example: const excelData = await ExcelModel.find();
-    // Modify the code based on your model and logic
+      const filePath = path.join(cwd(), "uploads", file.filename);
+      const workSheetsFromFile = xlsx.parse(filePath);
+      // Assuming the first sheet is the one of interest
+      const sheetData = workSheetsFromFile[0].data;
+      // Extract keys from the first array
+      const keys = sheetData[0];
 
-    res.json({ message: "import successful" });
+      // Process the rest of the arrays and build an array of objects
+      const processedData = sheetData.slice(1).map((item) => {
+        const obj = {} as any;
+        keys.forEach((key, index) => {
+          obj[key] = item[index];
+        });
+        return obj;
+      });
+
+      const existingUsers = await UserModel.find({});
+      if (existingUsers.length > 0) {
+        await UserModel.deleteMany({});
+      }
+
+      const results = await UserModel.insertMany(processedData)
+      // Implement your logic to save data to the user's database
+    return res.status(200).json({ success: true, content: results });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const vote = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response) => {
   try {
-    console.log('the bode: ', req.body);
-    const { users } = req.body;
-    const response = await UserModel.updateMany({}, users, { new: true});
-    return res.status(200).json({
-      success: true,
-      content: response
-    })
+    const users = await UserModel.find({});
+    return res.status(200).json({ success: true, content: users })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      content: error
-    })
+    res.status(500).json({ error: "Internal Server Error" });
   }
-};
+}

@@ -3,7 +3,7 @@ import request from "@/utils/request";
 
 export function vote (params: ICandidate[]) {
     return request({
-        url: '/api/users/login',
+        url: '/api/vote',
         method: 'post',
         data: params,
     })

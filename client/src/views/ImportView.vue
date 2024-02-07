@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { useDropzone } from "vue3-dropzone";
 import { importCandidates } from "@/services/import"
-async function onDrop(acceptFiles: any, rejectReasons: any) {
-    console.log(acceptFiles);
-    console.log(rejectReasons);
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
+async function onDrop(acceptFiles: any) {
     if (acceptFiles.length > 0) {
         const file = acceptFiles[0];
         const formData = new FormData();
         formData.append('file', file);
-        console.log("the data", formData, file);
-        const results = await importCandidates(formData);
-        console.log("results", results);
+        await importCandidates(formData);
+        toast.success("Data uploaded ... 🚀 ")
     }
 }
 

@@ -1,111 +1,29 @@
 <script setup lang="ts">
 import { type ICandidate } from "@/types/candidate";
-import { reactive } from "vue";
+import { onBeforeMount, reactive } from "vue";
 import CardCandidate from "@/components/CardCandidate.vue";
+import { loadCandidates } from "@/services/import";
 
 import { useToast } from "vue-toastification";
 import { vote } from "@/services/vote";
 
 const toast = useToast();
-let FeminineCandidates: ICandidate[] = [
-  {
-    "id": "001",
-    "name": "Fanomezana Razafindrazaka",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "002",
-    "name": "Faneva Rakotomalala",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "003",
-    "name": "Volana Rasoanandrasana",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "004",
-    "name": "Tahina Randriamampianina",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  // ... (continue with 21 more females)
-
-  {
-    "id": "049",
-    "name": "Tsiry Andriamaholisoa",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "050",
-    "name": "Faharoa Rakotoarisoa",
-    "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  }
-];
-let MasculinCandidates: ICandidate[] = [
-  {
-    "id": "005",
-    "name": "Fanomezana Razafindrazaka",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "006",
-    "name": "Faneva Rakotomalala",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "007",
-    "name": "Volana Rasoanandrasana",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "008",
-    "name": "Tahina Randriamampianina",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  // ... (continue with 21 more males)
-
-  {
-    "id": "009",
-    "name": "Tsiry Andriamaholisoa",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  },
-  {
-    "id": "010",
-    "name": "Faharoa Rakotoarisoa",
-    "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "selected": false,
-    "vote": 0
-  }
-];
-
 
 
 const viewState = reactive({
   currentStep: 0,
-  feminineCandidates: FeminineCandidates,
-  masculinCandidates: MasculinCandidates
+  feminineCandidates: [] as ICandidate[],
+  masculinCandidates: [] as ICandidate[]
+});
+
+const getCandidates = async () => {
+  let { data: { content }} = await loadCandidates()
+  content = content.map((candidate:ICandidate) => ({...candidate, selected: false,}));
+  viewState.feminineCandidates = content.filter((candidate: ICandidate) => candidate.gender === "F");
+  viewState.masculinCandidates = content.filter((candidate: ICandidate) => candidate.gender === "M");
+}
+onBeforeMount(async () => {
+  await getCandidates();
 })
 
 const updateCandidate = (candidate: ICandidate, event: boolean) => {
@@ -114,26 +32,14 @@ const updateCandidate = (candidate: ICandidate, event: boolean) => {
   else if (!event && candidate.vote > 0) candidate.vote--;
 }
 
-const reset = () => {
-  viewState.feminineCandidates.forEach(candidate => {
-    candidate.selected = false;
-    candidate.vote = 0
-  })
-  viewState.masculinCandidates.forEach(candidate => {
-    candidate.selected = false;
-    candidate.vote = 0
-  })
-}
-
 const nextStep = async () => {
   if (viewState.currentStep === 0) {
     viewState.currentStep++;
   } else {
     const candidatesUpdate = [...viewState.feminineCandidates, ...viewState.masculinCandidates];
-    const results = await vote(candidatesUpdate);
-    console.log("results: ", results);
+    await vote(candidatesUpdate);
+    await getCandidates();
     viewState.currentStep = 0;
-    reset()
     toast.success("Voaray ! ✔  🤝  ")
   }
 }

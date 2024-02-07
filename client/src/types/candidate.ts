@@ -4,5 +4,6 @@ export interface ICandidate {
     profileImage: string,
     selected: boolean,
     vote: number,
-    address?: string
+    address?: string,
+    gender: string
 }

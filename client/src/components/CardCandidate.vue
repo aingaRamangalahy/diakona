@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import type { ICandidate } from '@/types/candidate';
-import { reactive, type PropType } from 'vue';
+import { reactive, type PropType, watch } from 'vue';
 const emit = defineEmits(["select:candidate"])
 
-defineProps({
-    candidate: { type: Object as PropType<ICandidate>, required: true }
+const props = defineProps({
+    candidate: { type: Object as PropType<ICandidate>, required: true },
 })
 
 const viewState = reactive({
-    selected: false
+    selected: props.candidate.selected
 })
+
+watch(() => props.candidate, ()=> viewState.selected = props.candidate.selected)
 
 const selectCandidate = () => {
     viewState.selected = !viewState.selected
@@ -19,7 +21,7 @@ const selectCandidate = () => {
 <template>
     <div class="candidate" @click.stop="selectCandidate()">
         <input class="select-box" type="checkbox" v-model="viewState.selected" />
-        <img :src="candidate.profileImage" :alt="candidate.name">
+        <img :src="candidate.profileImage" >
         <div class="info">
             <div class="name">{{ candidate.name }}</div>
             <div class="vote">{{ candidate.vote }}</div>
@@ -52,9 +54,11 @@ const selectCandidate = () => {
         flex-direction: column;
         padding: 0 20px;
         font-size: 20px;
+        min-width: 250px;
 
         .name {
             color: $secondary-text-color;
+            height: 60px;
         }
         
         .vote {
