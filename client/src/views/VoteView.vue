@@ -32,10 +32,24 @@ const updateCandidate = (candidate: ICandidate, event: boolean) => {
   else if (!event && candidate.vote > 0) candidate.vote--;
 }
 
+const countSelected = (candidates: ICandidate[]) => candidates.filter(candidate => candidate.selected).length;
+
 const nextStep = async () => {
   if (viewState.currentStep === 0) {
+    const countFeminine = countSelected(viewState.feminineCandidates);
+    if (countFeminine > 40) {
+      const surplus = countFeminine - 40;
+      toast.error(`Hamarino fa mihoatra: ${surplus}` !);
+      return
+    }
     viewState.currentStep++;
   } else {
+    const countMasculine = countSelected(viewState.masculinCandidates);
+    if (countMasculine > 40) {
+      const surplus = countMasculine - 40;
+      toast.error(`Hamarino fa mihoatra: ${surplus}` !);
+      return
+    }
     const candidatesUpdate = [...viewState.feminineCandidates, ...viewState.masculinCandidates];
     await vote(candidatesUpdate);
     await getCandidates();
@@ -86,21 +100,4 @@ const getCurrentCandidates = () =>
   }
 }
 
-.btn {
-  background: $dark-background-color;
-  color: $white-text-color;
-  padding: 10px 15px;
-  display: inline;
-  border-radius: 5px;
-  float: right;
-  margin-right: 90px;
-  cursor: pointer;
-  transition: all 0.5s ease;
-
-  &:hover {
-    background: $accent-background-color;
-    color: $primary-text-color;
-    border: 1px solid $dark-background-color;
-  }
-}
 </style>

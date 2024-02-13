@@ -5,6 +5,7 @@ const emit = defineEmits(["select:candidate"])
 
 const props = defineProps({
     candidate: { type: Object as PropType<ICandidate>, required: true },
+    isResult: { type: Boolean, default: false }
 })
 
 const viewState = reactive({
@@ -14,13 +15,14 @@ const viewState = reactive({
 watch(() => props.candidate, ()=> viewState.selected = props.candidate.selected)
 
 const selectCandidate = () => {
+    if (props.isResult) return
     viewState.selected = !viewState.selected
     emit("select:candidate", viewState.selected)
 }
 </script>
 <template>
     <div class="candidate" @click.stop="selectCandidate()">
-        <input class="select-box" type="checkbox" v-model="viewState.selected" />
+        <input class="select-box" type="checkbox" v-model="viewState.selected" v-if="!isResult" />
         <img :src="candidate.profileImage" >
         <div class="info">
             <div class="name">{{ candidate.name }}</div>

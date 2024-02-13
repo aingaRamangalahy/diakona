@@ -11,6 +11,9 @@ const goToRoute = (path: string) => router.push(path);
       <div class="option vote" @click="goToRoute('/vote')">
         Fifidianana
       </div>
+      <div class="option vote" @click="goToRoute('/results')">
+        Voka-pifidianana
+      </div>
     </div>
 </template>
 
