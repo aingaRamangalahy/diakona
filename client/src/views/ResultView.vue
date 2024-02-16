@@ -44,7 +44,7 @@ const filterCandidate = (filter:string = "") => {
 </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .result-container {
 
     .btn:hover {

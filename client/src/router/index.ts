@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: '/results',
       name: 'results',
-      component: () => import('../views/VoteResult.vue')
+      component: () => import('../views/ResultView.vue')
     }
   ]
 })

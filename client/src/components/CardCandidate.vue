@@ -23,7 +23,7 @@ const selectCandidate = () => {
 <template>
     <div class="candidate" @click.stop="selectCandidate()">
         <input class="select-box" type="checkbox" v-model="viewState.selected" v-if="!isResult" />
-        <img :src="candidate.profileImage" >
+        <!-- <img :src="candidate.profileImage" > -->
         <div class="info">
             <div class="name">{{ candidate.name }}</div>
             <div class="vote">{{ candidate.vote }}</div>
