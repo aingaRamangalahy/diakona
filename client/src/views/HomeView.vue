@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import router from '@/router';
+import { useDisplayStore } from '@/stores/display';
+import { onBeforeMount } from 'vue';
 const goToRoute = (path: string) => router.push(path);
+
+const displayStore = useDisplayStore();
+onBeforeMount(() => displayStore.setTittleText("DEFAULT"));
 </script>
 
 <template>

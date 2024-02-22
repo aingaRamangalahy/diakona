@@ -3,7 +3,10 @@ import CardCandidate from '@/components/CardCandidate.vue';
 import { loadCandidates } from '@/services/import';
 import type { ICandidate } from '@/types/candidate';
 import { onMounted, reactive } from 'vue';
+import { useDisplayStore } from '@/stores/display';
 
+
+const displayStore = useDisplayStore();
 
 const viewState = reactive({
     candidates: [] as ICandidate[],
@@ -13,6 +16,8 @@ const viewState = reactive({
 onMounted(async () => {
     await getCandidates();
     await filterCandidate();
+    displayStore.setTittleText("RESULTS")
+
 })
 const getCandidates = async () => {
   let { data: { content }} = await loadCandidates()
@@ -55,6 +60,7 @@ const filterCandidate = (filter:string = "") => {
 
     display: flex;
     flex-direction: column;
+    align-items: center;
 
     .buttons {
         display: flex;

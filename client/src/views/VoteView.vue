@@ -6,9 +6,11 @@ import { loadCandidates } from "@/services/import";
 
 import { useToast } from "vue-toastification";
 import { vote } from "@/services/vote";
+import { useDisplayStore } from "@/stores/display";
 
 const toast = useToast();
-const sectionRefEl = ref<HTMLElement | null>(null)
+const sectionRefEl = ref<HTMLElement | null>(null);
+const displayStore = useDisplayStore();
 
 
 const viewState = reactive({
@@ -23,8 +25,10 @@ const getCandidates = async () => {
   viewState.feminineCandidates = content.filter((candidate: ICandidate) => candidate.gender === "F");
   viewState.masculinCandidates = content.filter((candidate: ICandidate) => candidate.gender === "M");
 }
+
 onBeforeMount(async () => {
   await getCandidates();
+  displayStore.setTittleText("FEMININE");
 })
 
 const updateCandidate = (candidate: ICandidate, event: boolean) => {
@@ -49,7 +53,9 @@ const nextStep = async () => {
       return
     }
     viewState.currentStep++;
-    if (sectionRefEl.value) scrollToTop(sectionRefEl.value)
+    // if (sectionRefEl.value) sectionRefEl.value.scrollIntoView({  behavior: "smooth", block: "start", top: 64 })
+    //  window.scrollTo({top: 0, behavior: "smooth"})
+    displayStore.setTittleText("MASCULINE");
   } else {
     const countMasculine = countSelected(viewState.masculinCandidates);
     if (countMasculine > 40) {
@@ -62,7 +68,9 @@ const nextStep = async () => {
     await getCandidates();
     viewState.currentStep = 0;
     toast.success("Voaray ! ✔  🤝  ");
-    if (sectionRefEl.value) scrollToTop(sectionRefEl.value)
+    // if (sectionRefEl.value) sectionRefEl.value.scrollIntoView({ behavior: "smooth", block: "start", top: 64 })
+    //  window.scrollTo({ top: 0, behavior:"smooth"})
+    displayStore.setTittleText("FEMININE");
   }
 }
 const getCurrentCandidates = () =>
@@ -70,9 +78,6 @@ const getCurrentCandidates = () =>
 </script>
 <template>
   <div class="vote" ref="sectionRefEl">
-    <div class="current-vote" >
-      {{ viewState.currentStep === 0 ? 'Vehivavy' : 'Lehilahy' }}
-    </div>
     <div class="candidates">
       <div class="candidate-item" v-for="candidate in getCurrentCandidates()" :key="candidate.id">
         <CardCandidate :candidate="candidate" @select:candidate="updateCandidate(candidate, $event)" />

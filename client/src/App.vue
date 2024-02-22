@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import router from './router';
+import { useDisplayStore } from "@/stores/display";
+import { onBeforeMount } from 'vue';
+
+const displayStore = useDisplayStore()
+
+onBeforeMount(() => displayStore.setTittleText("DEFAULT"))
 </script>
 
 <template>
   <header>
     <div class="title" @click="router.push('/')">
-      Fifidianana Diakona
+      {{ displayStore.getTitleText }}
     </div>
   </header>
 
